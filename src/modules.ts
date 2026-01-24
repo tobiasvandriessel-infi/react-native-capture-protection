@@ -197,7 +197,7 @@ const removeListener: CaptureProtectionFunction['removeListener'] = async (
     console.warn(
       `[react-native-capture-protection] Platform ${Platform.OS} not supported`
     );
-    return undefined;
+    return;
   }
   if (emitter) {
     emitter.remove();
