@@ -1,5 +1,4 @@
 import type { TurboModule } from 'react-native';
-import { TurboModuleRegistry } from 'react-native';
 
 export interface Spec extends TurboModule {
   allow: () => Promise<void>;
@@ -13,4 +12,4 @@ export interface Spec extends TurboModule {
   removeListeners: (count: number) => void;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('CaptureProtection');
+export default null as any;
