@@ -10,19 +10,22 @@ import {
   CaptureProtectionIOSNativeModules,
   ContentMode,
 } from './type';
+
+const isPlatformSupported = Platform.OS === 'ios' || Platform.OS === 'android';
+
 // @ts-expect-error
 const isTurboModuleEnabled = global.__turboModuleProxy != null;
 
-const CaptureProtectionModule = isTurboModuleEnabled
-  ? require('./spec/NativeCaptureProtection').default
-  : NativeModules?.CaptureProtection;
+const CaptureProtectionModule = isPlatformSupported
+  ? isTurboModuleEnabled
+    ? require('./spec/NativeCaptureProtection').default
+    : NativeModules?.CaptureProtection
+  : null;
 
 const CaptureProtectionAndroidModule =
   CaptureProtectionModule as CaptureProtectionAndroidNativeModules;
 const CaptureProtectionIOSModule =
   CaptureProtectionModule as CaptureProtectionIOSNativeModules;
-
-const isPlatformSupported = Platform.OS === 'ios' || Platform.OS === 'android';
 
 const CaptureNotificationEmitter = isPlatformSupported
   ? new NativeEventEmitter(CaptureProtectionModule)
@@ -31,6 +34,12 @@ const CaptureNotificationEmitter = isPlatformSupported
 const CaptureProtectionEventType = 'CaptureProtectionListener' as const;
 
 const allow: CaptureProtectionFunction['allow'] = async (option) => {
+  if (!isPlatformSupported) {
+    console.warn(
+      `[react-native-capture-protection] Platform ${Platform.OS} not supported`
+    );
+    return;
+  }
   if (Platform.OS === 'android') {
     return await CaptureProtectionAndroidModule?.allow?.();
   }
@@ -60,6 +69,12 @@ const allow: CaptureProtectionFunction['allow'] = async (option) => {
 };
 
 const prevent: CaptureProtectionFunction['prevent'] = async (option) => {
+  if (!isPlatformSupported) {
+    console.warn(
+      `[react-native-capture-protection] Platform ${Platform.OS} not supported`
+    );
+    return;
+  }
   if (Platform.OS === 'android') {
     return await CaptureProtectionAndroidModule?.prevent?.();
   }
@@ -122,6 +137,16 @@ const prevent: CaptureProtectionFunction['prevent'] = async (option) => {
 
 const protectionStatus: CaptureProtectionFunction['protectionStatus'] =
   async () => {
+    if (!isPlatformSupported) {
+      console.warn(
+        `[react-native-capture-protection] Platform ${Platform.OS} not supported`
+      );
+      return {
+        record: undefined,
+        appSwitcher: undefined,
+        screenshot: undefined,
+      };
+    }
     if (Platform.OS === 'android') {
       const status = await CaptureProtectionAndroidModule?.protectionStatus?.();
       return {
@@ -137,6 +162,12 @@ const protectionStatus: CaptureProtectionFunction['protectionStatus'] =
   };
 
 const hasListener: CaptureProtectionFunction['hasListener'] = async () => {
+  if (!isPlatformSupported) {
+    console.warn(
+      `[react-native-capture-protection] Platform ${Platform.OS} not supported`
+    );
+    return undefined;
+  }
   if (Platform.OS === 'android') {
     return await CaptureProtectionAndroidModule?.hasListener?.();
   }
@@ -148,7 +179,10 @@ const hasListener: CaptureProtectionFunction['hasListener'] = async () => {
 
 const addListener: CaptureProtectionFunction['addListener'] = (callback) => {
   if (!isPlatformSupported) {
-    return;
+    console.warn(
+      `[react-native-capture-protection] Platform ${Platform.OS} not supported`
+    );
+    return undefined;
   }
   return CaptureNotificationEmitter?.addListener?.(
     CaptureProtectionEventType,
@@ -160,6 +194,9 @@ const removeListener: CaptureProtectionFunction['removeListener'] = async (
   emitter
 ) => {
   if (!isPlatformSupported) {
+    console.warn(
+      `[react-native-capture-protection] Platform ${Platform.OS} not supported`
+    );
     return;
   }
   if (emitter) {
@@ -169,6 +206,12 @@ const removeListener: CaptureProtectionFunction['removeListener'] = async (
 
 const isScreenRecording: CaptureProtectionFunction['isScreenRecording'] =
   async () => {
+    if (!isPlatformSupported) {
+      console.warn(
+        `[react-native-capture-protection] Platform ${Platform.OS} not supported`
+      );
+      return undefined;
+    }
     if (Platform.OS === 'android') {
       return await CaptureProtectionAndroidModule?.isScreenRecording?.();
     }
